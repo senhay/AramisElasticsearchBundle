@@ -1,0 +1,5 @@
+elasticsearch_api:
+    resource: Aramis\Bundle\ElasticsearchBundle\Controller\ApiController
+    prefix: /
+    type: annotation
+    defaults: { _format: html|json }

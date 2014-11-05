@@ -1,0 +1,36 @@
+{
+    "name": "aramis/elasticsearch-bundle",
+    "description": "Aramis ElasticSearch Bundle",
+    "keywords": [ "aramis", "elasticsearch", "bundle" ],
+    "type": "symfony-bundle",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Aramis i-team",
+            "homepage": "https://github.com/ARAMISAUTO/AramisElasticsearchBundle/graphs/contributors"
+        }
+    ],
+    "homepage": "https://github.com/ARAMISAUTO/AramisElasticsearchBundle",
+    "require": {
+        "ruflin/Elastica": "v0.19.8.0",
+        "videlalvaro/php-amqplib": "dev-master"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "Aramis\\Bundle\\ElasticsearchBundle": ""
+        }
+    },
+    "target-dir": "Aramis/Bundle/ElasticsearchBundle",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "master"
+        }
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "git@github.com:ARAMISAUTO/AramisElasticsearchBundle.git"
+        }
+    ]
+}

@@ -1,4 +1,14 @@
-AramisElasticsearchBundle
-=========================
+AramisElasticSearchBundle
+==========
 
-Aramis ElasticSearch Bundle
+## Installation:
+
+
+
+## Configuration:
+
+
+
+## Build and fill elasticsearch index:
+
+
