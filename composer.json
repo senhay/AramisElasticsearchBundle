@@ -12,8 +12,6 @@
     ],
     "homepage": "https://github.com/ARAMISAUTO/AramisElasticsearchBundle",
     "require": {
-        "ruflin/Elastica": "v0.19.8.0",
-        "videlalvaro/php-amqplib": "dev-master"
     },
     "minimum-stability": "dev",
     "autoload": {
