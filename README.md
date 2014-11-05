@@ -1,0 +1,4 @@
+AramisElasticsearchBundle
+=========================
+
+Aramis ElasticSearch Bundle
