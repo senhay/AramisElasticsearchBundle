@@ -1,7 +1,7 @@
 {
     "name": "aramis/elasticsearch-bundle",
     "description": "Aramis ElasticSearch Bundle",
-    "keywords": [ "aramis", "elasticsearch", "bundle" ],
+    "keywords": [ "aramis", "elasticsearch", "bundle", "elastica", "indexer" ],
     "type": "symfony-bundle",
     "license": "proprietary",
     "authors": [
@@ -16,6 +16,7 @@
         "symfony/framework-bundle": "~2.3",
         "symfony/console": "~2.1",
         "symfony/property-access": "~2.2",
+        "jms/serializer-bundle": "@stable",
         "ruflin/elastica": ">=0.90.10.0, <1.4-dev"
     },
     "minimum-stability": "dev",
