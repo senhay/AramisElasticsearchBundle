@@ -12,6 +12,7 @@
     ],
     "homepage": "https://github.com/ARAMISAUTO/AramisElasticsearchBundle",
     "require": {
+        "ruflin/Elastica": "dev-master"
     },
     "minimum-stability": "dev",
     "autoload": {
