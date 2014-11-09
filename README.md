@@ -1,4 +1,14 @@
-AramisElasticsearchBundle
-=========================
+AramisElasticSearchBundle
+==========
 
-AramisElasticsearchBundle is a Symfony2 bundle for ElasticSearch
+## Installation:
+
+
+
+## Configuration:
+
+
+
+## Build and fill elasticsearch index:
+
+
