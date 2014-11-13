@@ -19,7 +19,7 @@
         "jms/serializer-bundle": "@stable",
         "nategood/httpful": "*",
         "ruflin/elastica": ">=0.90.10.0, <1.4-dev"
-    }
+    },
     "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
