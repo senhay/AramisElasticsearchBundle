@@ -19,6 +19,9 @@
         "jms/serializer-bundle": "@stable",
         "ruflin/elastica": ">=0.90.10.0, <1.4-dev"
     },
+    "require-dev": {
+        "nategood/httpful": "*"
+    },
     "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
