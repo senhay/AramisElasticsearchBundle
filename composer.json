@@ -17,11 +17,9 @@
         "symfony/console": "~2.1",
         "symfony/property-access": "~2.2",
         "jms/serializer-bundle": "@stable",
+        "nategood/httpful": "*",
         "ruflin/elastica": ">=0.90.10.0, <1.4-dev"
-    },
-    "require-dev": {
-        "nategood/httpful": "*"
-    },
+    }
     "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
