@@ -48,10 +48,8 @@ class CreateRabbitMQRiverCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // Build river
         $uri = sprintf('%s:%d/_river/my_river/_meta', $input->getOption('es_host'), $input->getOption('es_port'));
-
-        $river = array('type' => 'rabbitmq');
-
         $rabbitmq = array(
             'host' => $input->getOption('amqp_host'),
             'port' => $input->getOption('amqp_port'),
@@ -62,7 +60,7 @@ class CreateRabbitMQRiverCommand extends ContainerAwareCommand
             'exchange' => $input->getOption('amqp_exchange'),
             'routing_key' => $input->getOption('amqp_routing'),
             'exchange_declare' => true,
-            'exchange_type' => "direct",
+            'exchange_type' => 'direct',
             'exchange_durable' => true,
             'queue_bind' => true,
             'queue_durable' => true,
@@ -72,13 +70,21 @@ class CreateRabbitMQRiverCommand extends ContainerAwareCommand
             'qos_prefetch_count' => 10,
             'nack_errors' => true
             );
-
         $index = array(
             'bulk_size' => 100,
             'bulk_timeout' => '10ms',
             'ordered' => false,
             'replication' => 'default'
             );
+        $river = array('type' => 'rabbitmq');
+        $river['rabbitmq'] = $rabbitmq;
+        $river['index'] = $index;
+
+        // serializer
+        $serializer = $this->getContainer()->get('jms_serializer');
+        $serializer->serialize($river, 'json');
+
+        var_dump($serializer->serialize($river, 'json'));
 
 
 
