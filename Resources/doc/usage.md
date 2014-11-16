@@ -45,7 +45,7 @@ $builder->buildIndex('twitter', true);
 
 ##### Example:
 ```
-$builder->createIndex('twitter', true, true, null);
+$builder->createIndex('twitter', true);
 ```
 
 #### Delete index
@@ -73,7 +73,7 @@ $builder->deleteIndex('twitter');
      * Request documents
      *
      * @param  string      $indexName       Index name
-     * @param  string|null $action          Action (post|delete|null)
+     * @param  string      $action          Action (post|delete)
      * @param  boolean     $byQueue         Use RabbitMQ River
      * @param  array|null  $ids             Id's list
      * @param  string|null $indexBuildName  Index's unique name (for alias mode, null recommended)
@@ -83,7 +83,7 @@ $builder->deleteIndex('twitter');
 
 ##### Example:
 ```
-$builder->requestDocuments('twitter', 'delete', false);
+$builder->requestDocuments('twitter', 'delete');
 ```
 
 #### Refresh documents
@@ -103,7 +103,7 @@ $builder->requestDocuments('twitter', 'delete', false);
 
 ##### Example:
 ```
-$builder->refreshDocuments('twitter', true, array(1, 2), null);
+$builder->refreshDocuments('twitter', true, array(1, 2));
 ```
 
 #### Get document
