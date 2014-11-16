@@ -51,7 +51,7 @@ class IndexBuilder extends Index
      * @param  boolean $byQueue           Use RabbitMQ River
      * @param  integer $rollBackMaxLevel  Depth of rollback
      */
-    public function buildIndex($indexName, $byAlias = false, $byQueue = false, $rollBackMaxLevel = 0)
+    public function buildIndex($indexName, $byAlias = false, $byQueue = false, $rollBackMaxLevel = 1)
     {
         // Build a name for Index with alias
         $indexBuildName = $byAlias ? self::createUniqName($indexName) : $indexName;
