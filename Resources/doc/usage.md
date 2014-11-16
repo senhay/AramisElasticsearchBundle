@@ -167,14 +167,18 @@ $builder->rollback('twitter');
 ### A) Using command line
 
 #### Command's list:
+```
 -  aramis:elasticsearch:admin            Elasticsearch Command Line Tool
 -  aramis:elasticsearch:build            Elasticsearch Build Tool
 -  aramis:elasticsearch:rabbitmq_river   Elasticsearch RabbitMQ River Manager
+```
 
 #### Examples:
+```
 -  aramis:elasticsearch:admin alias
 -  aramis:elasticsearch:build build twitter
 -  aramis:elasticsearch:build rollback twitter
 -  ...
+```
 
 > Check [--help] for more details and actions about these commands.
