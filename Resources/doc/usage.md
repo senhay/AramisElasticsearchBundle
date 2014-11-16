@@ -11,7 +11,7 @@ $builder = $this->get('aramis_elasticsearch_builder');
 ##### Definition:
 ```
     /**
-     * Creates and Populates Index
+     * Creates and populates Index
      *
      * @param  string  $indexName         Index name
      * @param  boolean $byAlias           Use alias
@@ -65,17 +65,17 @@ $builder->createIndex('twitter', true, true, null);
 $builder->deleteIndex('twitter');
 ```
 
-#### Request Documents
+#### Request documents
 
 ##### Definition:
 ```
     /**
-     * Request Documents
+     * Request documents
      *
      * @param  string      $indexName       Index name
      * @param  string|null $action          Action (post|delete|null)
      * @param  boolean     $byQueue         Use RabbitMQ
-     * @param  array|null  $ids             List of id
+     * @param  array|null  $ids             Id's list
      * @param  string|null $indexBuildName  Index's unique name (for alias mode, null recommended)
      */
     public function requestDocuments($indexName, $action = 'post', $byQueue = false, $ids = null, $indexBuildName = null);
@@ -86,16 +86,16 @@ $builder->deleteIndex('twitter');
 $builder->requestDocuments('twitter', 'delete', false);
 ```
 
-#### Refresh Documents
+#### Refresh documents
 
 ##### Definition:
 ```
     /**
-     * Refresh Documents
+     * Refresh documents
      *
      * @param  string      $indexName       Index name
      * @param  boolean     $byQueue         Use RabbitMQ
-     * @param  array|null  $ids             id's list
+     * @param  array|null  $ids             Id's list
      * @param  string|null $indexBuildName  Index's unique name (for alias mode, null recommended)
      */
     public function refreshDocuments($indexName, $byQueue = false, $ids = null, $indexBuildName = null);
@@ -104,4 +104,62 @@ $builder->requestDocuments('twitter', 'delete', false);
 ##### Example:
 ```
 $builder->refreshDocuments('twitter', true, array(1, 2), null);
+```
+
+#### Get document
+
+##### Definition:
+```
+    /**
+     * Gets document by id
+     *
+     * @param  string $indexName  Index's name
+     * @param  string $id         Id
+     *
+     * @return array
+     */
+    public function getDocumentById($indexName, $id);
+```
+
+##### Example:
+```
+$builder->getDocumentById('twitter', 1);
+```
+
+#### Get documents
+
+##### Definition:
+```
+    /**
+     * Gets documents by ids
+     *
+     * @param  string $indexName  Index's name
+     * @param  array  $ids        Id's list
+     *
+     * @return array
+     */
+    public function getDocumentsByIds($indexName, array $ids);
+```
+
+##### Example:
+```
+$builder->getDocumentsByIds('twitter', array(1,2));
+```
+
+#### Rollback
+
+##### Definition:
+```
+    /**
+     * Rollback
+     *
+     * @param  string  $indexName  Index's name
+     * @param  integer $level      Index's version (1: last version, 2: second last version, ...)
+     */
+    public function rollback($indexName, $level = 1);
+```
+
+##### Example:
+```
+$builder->rollback('twitter');
 ```
