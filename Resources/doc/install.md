@@ -57,4 +57,4 @@ example_data_provider:
 
 **Note:**
 
-> Of course, the goal is to use one (or SEVERAL) DataProvider own to you to supply the index.
+> Of course, the goal is to use one (or SEVERAL) DataProvider own to you, to supply the index.
