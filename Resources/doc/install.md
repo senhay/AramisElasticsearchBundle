@@ -32,7 +32,7 @@ You need to create a service that will feed index with data.
 
 The service class must implements DataProviderInterface: `Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderInterface`.
 
-An example of DataProvider class is here: `Aramis\Bundle\ElasticsearchBundle\Provider\ExampleDataProvider`.
+There is an example of DataProvider class: `Aramis\Bundle\ElasticsearchBundle\Provider\ExampleDataProvider`.
 
 ### C) Basic Bundle Configuration
 
