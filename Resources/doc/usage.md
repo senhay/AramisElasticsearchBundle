@@ -2,11 +2,13 @@
 
 #### Get service
 
-`$builder = $this->get('aramis_elasticsearch_builder');`
+```
+$builder = $this->get('aramis_elasticsearch_builder');
+```
 
 #### Build index
 
-Definition:
+##### Definition:
 ```
 /**
  * Builds Index
@@ -19,5 +21,7 @@ Definition:
 public function buildIndex($indexName, $byAlias = false, $byQueue = false, $rollBackMaxLevel = 0);
 ```
 
-Example:
-`$builder->buildIndex('twitter', true, false, 0);`
+##### Example:
+```
+$builder->buildIndex('twitter', true, false, 0);
+```
