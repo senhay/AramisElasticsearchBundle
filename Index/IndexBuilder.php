@@ -2,6 +2,7 @@
 
 namespace Aramis\Bundle\ElasticsearchBundle\Index;
 
+use Aramis\Bundle\ElasticsearchBundle\Index\Index;
 use Aramis\Bundle\ElasticsearchBundle\Manager\DataManagerInterface;
 use Aramis\Bundle\ElasticsearchBundle\Exception\InvalidException;
 
@@ -9,19 +10,16 @@ use Symfony\Component\Yaml\Parser;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * http://elastica.io/getting-started/storing-and-indexing-documents.html
- *
  * @author i-team <iteam@aramisauto.com>
  *
  * Index manager
  */
-class IndexBuilder
+class IndexBuilder extends Index
 {
-    protected $_container;
     /**
-     * @var array
+     * @var ContainerInterface
      */
-    protected $_config = array('host' => '127.0.0.1', 'port' => 9200);
+    protected $_container;
 
     /**
      * @var array
@@ -29,66 +27,224 @@ class IndexBuilder
     protected $_dataManagers = array();
 
     /**
-     * @var DataManagerInterface
-     */
-    protected $_theDataManager;
-
-    /**
-     * @var array
-     */
-    protected $_indexes = array();
-
-    /**
-     * @var \Elastica\Client
-     */
-    protected $_elasticaClient;
-
-    /**
-     * @var \Elastica\Status
-     */
-    protected $_elasticaStatus;
-
-    /**
-     * @param array $config
+     * @param  ContainerInterface $container
+     * @param  array              $config
+     * @param  array              $dataManagers
      */
     public function __construct(ContainerInterface $container, array $config = array(), $dataManagers = array())
     {
-        $this->setConfig($config);
+        parent::__construct($config);
 
+        $this->_container = $container;
+
+        // Get DataManagers
         foreach ($dataManagers as $oneDataManager) {
             $this->addDataManager($container->get($oneDataManager));
         }
-
-        $this->_elasticaClient = $this->getElasticaClient();
-        $this->_elasticaStatus = new \Elastica\Status($this->_elasticaClient);
     }
 
     /**
-     * Sets config
+     * Builds Index
      *
-     * @param  array
+     * @param  string  $indexName
+     * @param  boolean $byAlias
+     * @param  boolean $byQueue
+     * @param  integer $rollBackMaxLevel
      */
-    public function setConfig(array $config)
+    public function buildIndex($indexName, $byAlias = false, $byQueue = false, $rollBackMaxLevel = 0)
     {
-        foreach ($config as $key => $value) {
-            $this->_config[$key] = $value;
+        // Build a name for Index with alias
+        $indexBuildName = $byAlias ? self::createUniqName($indexName) : $indexName;
+
+        $this->createIndex($indexName, false, true, $indexBuildName);
+        $this->requestDocuments($indexName, 'post', $byQueue, null, $indexBuildName);
+        if ($byAlias) {
+            $this->changeAliasAndClean($indexBuildName, $indexName, $rollBackMaxLevel);
         }
     }
 
     /**
-     * Gets Elastica Client
+     * Creates Index
      *
-     * @return \Elastica\Client
+     * @param  string      $indexName
+     * @param  boolean     $byAlias
+     * @param  boolean     $replaceIfExists
+     * @param  string|null $indexBuildName
      */
-    public function getElasticaClient()
+    public function createIndex($indexName, $byAlias = false, $replaceIfExists = false, $indexBuildName = null)
     {
-        return new \Elastica\Client(array('host' => $this->_config['host'], 'port' => $this->_config['port']));
+        $theDataManager = $this->selectDataManager($indexName);
+
+        // Build a name for Index with alias
+        $indexBuildName = ($byAlias && !$indexBuildName) ? self::createUniqName($indexName) : $indexBuildName;
+        $indexBuildName = ($indexBuildName) ? $indexBuildName : $indexName;
+
+        $indicesByAlias = $this->_elasticaStatus->getIndicesWithAlias($indexName);
+        if (!$replaceIfExists && (count($indicesByAlias) || $this->_elasticaStatus->indexExists($indexName))) {
+            $indexBuildName = $indicesByAlias[0]->getName();
+        } else {
+            $elasticaIndex = $this->_elasticaClient->getIndex($indexBuildName);
+
+            if (method_exists($theDataManager, 'getAnalysis')) {
+                $elasticaIndex->create($theDataManager->getAnalysis(), true); // true: deletes index first if already exists
+            }
+
+            $this->defineMapping($elasticaIndex, $theDataManager);
+        }
+        if ($byAlias && $replaceIfExists) {
+            $this->changeAliasAndClean($indexBuildName, $indexName);
+        }
     }
 
     /**
-     * Adds data manager
+     * Gets document by id
      *
-     * @param DataManagerInterface $dataManager
+     * @param  string $indexName
+     * @param  string $id
+     *
+     * @return array
+     */
+    public function getDocumentById($indexName, $id)
+    {
+        $theDataManager = $this->selectDataManager($indexName);
+        if ($this->_elasticaStatus->indexExists($indexName)) {
+            $elasticaIndex = $this->_elasticaClient->getIndex($indexName);
+        } else {
+            $indexesByAlias = $this->_elasticaStatus->getIndicesWithAlias($indexName);
+            if (count($indexesByAlias)) {
+                $elasticaIndex = $indexesByAlias[0];
+            } else {
+                throw new InvalidException('Index does not exists.');
+            }
+        }
+
+        $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
+
+        return $elasticaType->getDocument($id)->getData();
+    }
+
+    /**
+     * Gets documents by ids
+     *
+     * @param  string $indexName
+     * @param  array  $ids
+     *
+     * @return array
+     */
+    public function getDocumentsByIds($indexName, array $ids)
+    {
+        $documents = array();
+        foreach ($ids as $id) {
+            $documents[$id] = $this->getDocumentById($indexName, $id);
+        }
+
+        return $documents;
+    }
+
+    /**
+     * Post Documents
+     *
+     * @param  string      $indexName
+     * @param  string|null $action (post|delete|null)
+     * @param  boolean     $byQueue
+     * @param  array|null  $ids
+     * @param  string|null $indexBuildName
+     */
+    public function requestDocuments($indexName, $action = 'post', $byQueue = false, $ids = null, $indexBuildName = null)
+    {
+        $theDataManager = $this->selectDataManager($indexName);
+
+        // Get Index
+        $indexesByAlias = $this->_elasticaStatus->getIndicesWithAlias($indexName);
+        if (null === $indexBuildName && count($indexesByAlias)) {
+            $elasticaIndex = $indexesByAlias[0];
+        } else {
+            $elasticaIndex = $this->_elasticaClient->getIndex($indexBuildName ? $indexBuildName : $indexName);
+        }
+
+        $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
+        $elasticaDocuments = $this->getElasticaDocuments($indexName, $ids);
+        $opType = ('delete' == strtolower($action)) ? strtolower($action) : null;
+
+        if ($byQueue) { // Using RabbitMQ
+            if (!$theDataManager->getRabbitMqProducerName()) {
+                throw new InvalidException('There is no RabbitMQ producer in your DataManager.');
+            }
+
+            $elasticaBulk = new \Elastica\Bulk($this->_elasticaClient);
+            $elasticaBulk->addDocuments($elasticaDocuments, $opType);
+
+            $rabbitMQServiceName = sprintf('old_sound_rabbit_mq.%s', $theDataManager->getRabbitMqProducerName());
+            $rabbitMQService = $this->_container->get($rabbitMQServiceName);
+            $rabbitMQService->publish($elasticaBulk->toString());
+        } else { // Send documents to Elasticesearch
+            if ('delete' == $opType) {
+                $elasticaType->deleteDocuments($elasticaDocuments);
+            } else {
+                $elasticaType->addDocuments($elasticaDocuments);
+            }
+            $elasticaType->getIndex()->refresh();
+        }
+    }
+
+    /**
+     * Refresh Documents
+     *
+     * @param  string      $indexName
+     * @param  boolean     $byQueue
+     * @param  array|null  $ids
+     * @param  string|null $indexBuildName
+     */
+    public function refreshDocuments($indexName, $byQueue = false, $ids = null, $indexBuildName = null)
+    {
+        $this->requestDocuments($indexName, 'delete', $byQueue, $ids, $indexBuildName);
+        $this->requestDocuments($indexName, 'post', $byQueue, $ids, $indexBuildName);
+    }
+
+    /**
+     * Rollback by alias
+     *
+     * @param  string  $indexName
+     * @param  integer $level
+     */
+    public function rollback($indexName, $level = 1)
+    {
+        // Get all other Indexes
+        $otherIndexesNames = $this->getIndexNames();
+        $oldIndexesNames   = array();
+
+        // Get current index
+        $currentIndexes = $this->_elasticaStatus->getIndicesWithAlias($indexName);
+        $currentIndexesNames = array();
+        foreach ($currentIndexes as $currentIndex) {
+            $currentIndexesNames[] = $currentIndex->getName();
+        }
+
+        // Sort other versions
+        foreach ($otherIndexesNames as $oneIndexName) {
+            if (preg_match(sprintf('/^%s_/', $indexName), $oneIndexName)) {
+                if (strtotime(str_replace(sprintf('%s_', $indexName), '', $oneIndexName))) {
+                    if (!in_array($oneIndexName, $currentIndexesNames)) {
+                        $oldIndexesNames[] = $oneIndexName;
+                    }
+                }
+            }
+        }
+        rsort($oldIndexesNames);
+
+        // Change alias
+        if ($this->_elasticaStatus->indexExists($oldIndexesNames[$level - 1])) {
+            $elasticaIndex = $this->_elasticaClient->getIndex($oldIndexesNames[$level - 1]);
+            $elasticaIndex->addAlias($indexName, true);
+        } else {
+            throw new InvalidException('Check rollback level.');
+        }
+    }
+
+    /**
+     * Adds DataManager
+     *
+     * @param  DataManagerInterface $dataManager
      */
     protected function addDataManager(DataManagerInterface $dataManager)
     {
@@ -96,112 +252,137 @@ class IndexBuilder
     }
 
     /**
-     * Builds Index
+     * Changes alias and deletes old indexes
      *
-     * @param  string $indexName
-     * @param  boolean $byAlias
+     * @param  string  $indexName (alias)
+     * @param  string  $indexBuildName
+     * @param  integer $rollBackMaxLevel
      */
-    public function buildIndex($indexName, $byAlias = false)
+    protected function changeAliasAndClean($indexBuildName, $indexName, $rollBackMaxLevel = 0)
     {
-        // Build a name for Index with alias
-        $indexBuildName = $byAlias ? $indexName . '_' . uniqid() : $indexName;
-
-        // Select the data manager
         $theDataManager = $this->selectDataManager($indexName);
 
-        // Load index
+        // Get Index
         $elasticaIndex = $this->_elasticaClient->getIndex($indexBuildName);
 
-        // Create the index new
-        $elasticaIndex->create($theDataManager->getAnalysis(), true); // true: deletes index first if already exists
+        // Delete old Indexes by name
+        if ($this->_elasticaStatus->indexExists($indexName)) {
+            $this->_elasticaClient->getIndex($indexName)->delete();
+        }
+        // Get old Indexes by alias
+        // $lastIndexes = $this->_elasticaStatus->getIndicesWithAlias($indexName);
 
-        // Define Mapping
-        $this->defineMapping($elasticaIndex, $theDataManager);
+        $keepedIndexesNames = array();
+        $oldIndexesNames    = array();
+        $keepedIndexesNames[] = $indexBuildName;
 
-        // Bulk indexing
-        $this->addDocuments($elasticaIndex, $theDataManager);
+        // Get all other Indexes
+        $otherIndexesNames = $this->getIndexNames();
 
-        if ($byAlias) {
-            // Change alias and delete old indexes
-            $this->changeAliasAndClean($elasticaIndex, $indexName);
+        // Change alias
+        $elasticaIndex->addAlias($indexName, true);
+
+        // Delete old indexes by alias
+        foreach ($otherIndexesNames as $oneIndexName) {
+            if (preg_match(sprintf('/^%s_/', $indexName), $oneIndexName)) {
+                if (strtotime(str_replace(sprintf('%s_', $indexName), '', $oneIndexName))) {
+                    if (!in_array($oneIndexName, $keepedIndexesNames)) {
+                        $oldIndexesNames[] = $oneIndexName;
+                    }
+                }
+            }
+        }
+        rsort($oldIndexesNames);
+        if (method_exists($theDataManager, 'getRollBackMaxLevel') && !$rollBackMaxLevel) {
+            $rollBackMaxLevel = $theDataManager->getRollBackMaxLevel();
+        }
+        foreach ($oldIndexesNames as $level => $oneOldIndexName) {
+            if ($level >= $rollBackMaxLevel) {
+                $this->_elasticaClient->getIndex($oneOldIndexName)->delete();
+            }
         }
     }
 
     /**
-     * Post one Document
-     *
+     * Create Unique Name
      * @param  string $indexName
-     * @param  string $id
+     *
+     * @return string
      */
-    public function postDocument($indexName, $id)
+    protected static function createUniqName($indexName)
     {
-        // Select the Data Manager
-        $theDataManager = $this->selectDataManager($indexName);
-
-        // Get Index
-        $elasticaIndex = $this->_elasticaClient->getIndex($indexName);
-
-        // Create a Type
-        $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
-
-        // Gets Data
-        $dataManagerDocument = $theDataManager->getOneDocument($id);
-
-        // Elastica document
-        $elasticaDocument = new \Elastica\Document($id, $dataManagerDocument);
-
-        // Add document to type
-        $elasticaType->addDocument($elasticaDocument);
-
-        // Refresh Index
-        $elasticaType->getIndex()->refresh();
+        return sprintf('%s_%s', $indexName, date('YmdHis'));
     }
 
     /**
-     * Post Documents
+     * Defines Mapping
+     *
+     * @param  \Elastica\Index      $elasticaIndex
+     * @param  DataManagerInterface $theDataManager
+     */
+    protected function defineMapping(\Elastica\Index $elasticaIndex, DataManagerInterface $theDataManager)
+    {
+        if (method_exists($theDataManager, 'getMapping')) {
+            $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
+
+            // Define mapping
+            $mapping = new \Elastica\Type\Mapping();
+            $mapping->setType($elasticaType);
+            if (method_exists($theDataManager, 'getMappingParams')) {
+                foreach ($theDataManager->getMappingParams() as $oneParamIndex => $oneParamValue) {
+                    $mapping->setParam($oneParamIndex, $oneParamValue);
+                }
+            }
+            $mapping->setProperties($theDataManager->getMapping());
+            $mapping->send();
+        }
+    }
+
+    /**
+     * Gets Elastica Documents
      *
      * @param  string $indexName
-     * @param  array $ids
+     * @param  array  $ids
+     *
+     * @return array
      */
-    public function postDocuments($indexName, $ids)
+    protected function getElasticaDocuments($indexName, $ids = null)
     {
-        // Select the Data Manager
         $theDataManager = $this->selectDataManager($indexName);
 
-        // Get Index
-        $elasticaIndex = $this->_elasticaClient->getIndex($indexName);
-
-        // Create a type
-        $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
-
-        // Create holder for Elastica documents
-        $elasticaDocuments = array();
-
-        // Gets Data
+        // Get Data
         $documents = array();
-        foreach ($ids as $oneId) {
-            $documents[] = $theDataManager->getOneDocument($id);
+        if (null === $ids) {
+            $documents = $theDataManager->getDocuments();
+        } elseif (is_array($ids)) {
+            $documents = $theDataManager->getDocumentsByIds($oneId);
+        } else {
+            throw new InvalidException('Parameter {$ids} must be an array or null.');
         }
 
         // Bulk indexing
+        $elasticaDocuments = array();
         foreach ($documents as $oneDataLine) {
-            $elasticaDocuments[] = new \Elastica\Document(
+            $oneDocument = new \Elastica\Document(
                 $oneDataLine['id'],
                 $oneDataLine
             );
+            $oneDocument->setType($theDataManager->getTypeName());
+            $oneDocument->setIndex($indexName);
+            $elasticaDocuments[] = $oneDocument;
         }
-        $elasticaType->addDocuments($elasticaDocuments);
-        $elasticaType->getIndex()->refresh();
+
+        return $elasticaDocuments;
     }
 
     /**
-     * Select Data Manager
+     * Selects a DataManager
      *
-     * @param  string $indexName
+     * @param   string $indexName
      *
-     * @return DataManagerInterface
+     * @return  DataManagerInterface
      */
-    private function selectDataManager($indexName)
+    protected function selectDataManager($indexName)
     {
         foreach ($this->_dataManagers as $oneDataManager) {
             if ($oneDataManager->getIndexName() == $indexName) {
@@ -210,97 +391,6 @@ class IndexBuilder
             }
         }
 
-        throw new InvalidException('DataManager does not exist');
-    }
-
-    /**
-     * Defines Analysis
-     *
-     * @param string $indexBuildName
-     * @param DataManagerInterface $theDataManager
-     */
-    private function defineAnalysis(DataManagerInterface $theDataManager, $indexBuildName)
-    {
-        // Load index
-        $elasticaIndex = $this->_elasticaClient->getIndex($indexBuildName);
-
-        // Create the index new
-        $elasticaIndex->create($theDataManager->getAnalysis(), true); // true: deletes index first if already exists
-    }
-
-    /**
-     * Defines Mapping
-     *
-     * @param \Elastica\Index $elasticaIndex
-     * @param DataManagerInterface $theDataManager
-     */
-    private function defineMapping(\Elastica\Index $elasticaIndex, DataManagerInterface $theDataManager)
-    {
-        // Create a type
-        $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
-
-        // Define mapping
-        $mapping = new \Elastica\Type\Mapping();
-        $mapping->setType($elasticaType);
-        foreach ($theDataManager->getMappingParams() as $oneParamIndex => $oneParamValue) {
-            $mapping->setParam($oneParamIndex, $oneParamValue);
-        }
-        $mapping->setProperties($theDataManager->getMapping());
-
-        // Send mapping to type
-        $mapping->send();
-    }
-
-    /**
-     * Bulk indexing
-     *
-     * @param \Elastica\Index $elasticaIndex
-     * @param DataManagerInterface $theDataManager
-     */
-    private function addDocuments(\Elastica\Index $elasticaIndex, DataManagerInterface $theDataManager)
-    {
-        // Create a type
-        $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
-
-        // Create holder for Elastica documents
-        $elasticaDocuments = array();
-
-        // Gets data
-        $dataManagerDocuments = $theDataManager->getDocuments();
-
-        // Bulk indexing
-        foreach ($dataManagerDocuments as $oneDataLine) {
-            $elasticaDocuments[] = new \Elastica\Document(
-                $oneDataLine['id'],
-                $oneDataLine
-            );
-        }
-        $elasticaType->addDocuments($elasticaDocuments);
-        $elasticaType->getIndex()->refresh();
-    }
-
-    /**
-     * Changes alias and deletes old indexes
-     *
-     * @param \Elastica\Index $elasticaIndex
-     * @param  string $indexName
-     */
-    private function changeAliasAndClean(\Elastica\Index $elasticaIndex, $indexName)
-    {
-        // Delete old indexes by name
-        if ($this->_elasticaStatus->indexExists($indexName)) {
-            $this->_elasticaClient->getIndex($indexName)->delete();
-        }
-
-        // Get old indexes by alias
-        $indexesToDelete = $this->_elasticaStatus->getIndicesWithAlias($indexName);
-
-        // Change alias
-        $elasticaIndex->addAlias($indexName, true);
-
-        // Delete old indexes by alias
-        foreach ($indexesToDelete as $indexToDelete) {
-            $indexToDelete->delete();
-        }
+        throw new InvalidException('DataManager does not exists.');
     }
 }

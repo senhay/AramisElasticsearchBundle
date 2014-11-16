@@ -5,11 +5,9 @@ namespace Aramis\Bundle\ElasticsearchBundle\Manager;
 use Aramis\Bundle\ElasticsearchBundle\Manager\DataManagerInterface;
 
 /**
- * http://elastica.io/getting-started/storing-and-indexing-documents.html
- *
  * @author i-team <iteam@aramisauto.com>
  *
- * Interface of data manager service
+ * Interface of DataManager service
  */
 class ExampleDataManager implements DataManagerInterface
 {
@@ -58,7 +56,7 @@ class ExampleDataManager implements DataManagerInterface
         '1' => array(
             'id'      => 1,
             'user'    => array(
-                'name'      => 'mewantcookie',
+                'name'      => 'mewantcookies',
                 'fullName'  => 'Cookie Monster'
             ),
             'msg'     => 'Me wish there were expression for cookies like there is for apples. "A cookie a day make the doctor diagnose you with diabetes" not catchy.',
@@ -69,7 +67,7 @@ class ExampleDataManager implements DataManagerInterface
         '2' => array(
             'id'      => 2,
             'user'    => array(
-                'name'      => 'mewantpizza',
+                'name'      => 'mewantpizzakkk',
                 'fullName'  => 'Pizza Monster'
             ),
             'msg'     => 'Me wish there were expression for pizza like there is for apples. "A cookie a day make the doctor diagnose you with diabetes" not catchy.',
@@ -100,11 +98,21 @@ class ExampleDataManager implements DataManagerInterface
     /**
      * @var array
      */
-    private $_mapping_params = array(
+    private $_mappingParams = array(
         'index_analyzer'  => 'indexAnalyzer',
         'search_analyzer' => 'searchAnalyzer',
         '_boost' => array('name' => '_boost', 'null_value' => 1.0)
         );
+
+    /**
+     * @var string
+     */
+    private $_rabbitMqProducerName = 'elasticsearch_producer';
+
+    /**
+     * @var integer
+     */
+    private $_rollBackMaxLevel = 0;
 
     /**
      * Sets analysis for Index.
@@ -153,7 +161,7 @@ class ExampleDataManager implements DataManagerInterface
      */
     public function setMappingParams($mappingParams)
     {
-        $this->_mapping_params = $mappingParams;
+        $this->_mappingParams = $mappingParams;
     }
 
     /**
@@ -167,7 +175,17 @@ class ExampleDataManager implements DataManagerInterface
     }
 
     /**
-     * Gets analysis of Index.
+     * Sets RabbitMQ producer name.
+     *
+     * @param string $name
+     */
+    public function setRabbitMqProducerName($rabbitMqProducerName)
+    {
+        $this->_rabbitMqProducerName = $rabbitMqProducerName;
+    }
+
+    /**
+     * Gets analysis of Index. | Optional
      *
      * @return array
      */
@@ -197,7 +215,7 @@ class ExampleDataManager implements DataManagerInterface
     }
 
     /**
-     * Gets mapping of Index.
+     * Gets mapping of Index. | Optional
      *
      * @return array
      */
@@ -207,25 +225,30 @@ class ExampleDataManager implements DataManagerInterface
     }
 
     /**
-     * Gets mapping parameters of Index.
+     * Gets mapping parameters of Index. | Optional
      *
      * @return array
      */
     public function getMappingParams()
     {
-        return $this->_mapping_params;
+        return $this->_mappingParams;
     }
 
     /**
-     * Gets one document.
+     * Gets documents by ids.
      *
-     * @param string $id
+     * @param array $ids
      *
      * @return array
      */
-    public function getOneDocument($id)
+    public function getDocumentsByIds($ids)
     {
-        return $this->_documents[$id];
+        $documents = array();
+        foreach ($ids as $id) {
+            $documents[] = $this->_documents[$id];
+        }
+
+        return $documents;
     }
 
     /**
@@ -236,5 +259,25 @@ class ExampleDataManager implements DataManagerInterface
     public function getTypeName()
     {
         return $this->_typeName;
+    }
+
+    /**
+     * Gets RabbitMQ producer name.  | Optinal
+     *
+     * @return string
+     */
+    public function getRabbitMqProducerName()
+    {
+        return $this->_rabbitMqProducerName;
+    }
+
+    /**
+     * Gets Rollback Max Level.  | Optinal
+     *
+     * @return string
+     */
+    public function getRollBackMaxLevel()
+    {
+        return $this->_rollBackMaxLevel;
     }
 }
