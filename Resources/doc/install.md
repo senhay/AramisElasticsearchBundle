@@ -30,9 +30,9 @@ public function registerBundles()
 
 You need to create a service that will feed index with data.
 
-The service class must implements DataProviderInterface: Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderInterface.
+The service class must implements DataProviderInterface: .. note:: Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderInterface.
 
-An example of DataProvider class is here: Aramis\Bundle\ElasticsearchBundle\Provider\ExampleDataProvider.
+An example of DataProvider class is here: .. note:: Aramis\Bundle\ElasticsearchBundle\Provider\ExampleDataProvider.
 
 ### C) Basic Bundle Configuration
 
@@ -57,4 +57,4 @@ example_data_provider:
 
 **Note:**
 
-> Of course, the goal is to use one (or SEVERAL) dataProvider own to you to supply the index.
+> Of course, the goal is to use one (or SEVERAL) DataProvider own to you to supply the index.
