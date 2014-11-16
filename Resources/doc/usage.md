@@ -6,8 +6,9 @@
 
 #### Build index
 
-Definition:
-`/**
+##### Definition:
+```
+/**
  * Builds Index
  *
  * @param  string  $indexName        Index name
@@ -16,6 +17,7 @@ Definition:
  * @param  integer $rollBackMaxLevel depth of rollback, it must be greater than 0 to can use rollback (greater versions will be deleted)
  */
 public function buildIndex($indexName, $byAlias = false, $byQueue = false, $rollBackMaxLevel = 0);`
+```
 
-Example:
+##### Example:
 `$builder->buildIndex('twitter', true, false, 0);`
