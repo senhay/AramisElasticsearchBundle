@@ -16,7 +16,7 @@ $builder = $this->get('aramis_elasticsearch_builder');
  * @param  string  $indexName        Index name
  * @param  boolean $byAlias          Use alias
  * @param  boolean $byQueue          Use RabbitMQ
- * @param  integer $rollBackMaxLevel depth of rollback, it must be greater than 0 to can use rollback (greater versions will be deleted)
+ * @param  integer $rollBackMaxLevel depth of rollback
  */
 public function buildIndex($indexName, $byAlias = false, $byQueue = false, $rollBackMaxLevel = 0);
 ```
@@ -25,3 +25,5 @@ public function buildIndex($indexName, $byAlias = false, $byQueue = false, $roll
 ```
 $builder->buildIndex('twitter', true, false, 0);
 ```
+
+> $rollBackMaxLevel must be greater than 0 to can use rollback (greater index versions will be deleted).
