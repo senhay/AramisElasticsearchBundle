@@ -24,6 +24,7 @@ public function registerBundles()
         new Aramis\Bundle\ElasticsearchBundle\AramisElasticsearchBundle(),
     );
 }
+```
 
 ### C) Create a DataProvider service
 
