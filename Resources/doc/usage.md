@@ -178,10 +178,11 @@ $builder->rollback('twitter');
 -  aramis:elasticsearch:admin alias
 -  aramis:elasticsearch:build build twitter
 -  aramis:elasticsearch:build rollback twitter
+-  aramis:elasticsearch:rabbitmq_river create
 -  ...
 ```
 
-> Check [--help] for more details and actions about these commands.
+> Check [--help] option for more details and actions about these commands.
 
 
 
