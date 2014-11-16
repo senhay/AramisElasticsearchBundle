@@ -9,7 +9,7 @@ use Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderInterface;
  *
  * Interface of DataProvider service
  */
-class ExampleDataProvider implements DataProviderInterface
+class DataProviderExample implements DataProviderInterface
 {
     /**
      * @var string

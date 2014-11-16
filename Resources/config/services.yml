@@ -6,5 +6,5 @@ services:
             - @service_container
             - { host: "%aramis_elasticsearch.elasticsearch.host%", port: %aramis_elasticsearch.elasticsearch.port% }
             - %aramis_elasticsearch.data_providers%
-    example_data_provider:
-        class: Aramis\Bundle\ElasticsearchBundle\Provider\ExampleDataProvider
+    data_provider_example:
+        class: Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderExample

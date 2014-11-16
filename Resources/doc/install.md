@@ -32,7 +32,7 @@ You need to create a service that will feed index with data.
 
 The service class must implements DataProviderInterface: `Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderInterface`.
 
-There is an example of DataProvider class: `Aramis\Bundle\ElasticsearchBundle\Provider\ExampleDataProvider`.
+There is an example of DataProvider class: `Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderExample`.
 
 ### C) Basic Bundle Configuration
 
@@ -44,15 +44,15 @@ aramis_elasticsearch:
     elasticsearch:
         host: 127.0.0.1
         port: 9200
-    data_providers: ['example_data_provider']
+    data_providers: ['data_provider_example']
 ```
 
-In this example, we used the "example_data_provider" service:
+In this example, we used the "data_provider_example" service:
 
 ```yaml
 # vendor/aramis/elasticsearch-bundle/Aramis/Bundle/ElasticsearchBundle/Resources/config/services.yml
-example_data_provider:
-        class: Aramis\Bundle\ElasticsearchBundle\Provider\ExampleDataProvider
+data_provider_example:
+        class: Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderExample
 ```
 
 **Note:**

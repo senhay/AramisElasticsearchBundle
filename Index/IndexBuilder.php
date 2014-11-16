@@ -202,7 +202,7 @@ class IndexBuilder extends Index
     }
 
     /**
-     * Rollback by alias
+     * Rollback
      *
      * @param  string  $indexName
      * @param  integer $level
@@ -302,7 +302,8 @@ class IndexBuilder extends Index
     }
 
     /**
-     * Create Unique Name
+     * Creates Unique Name
+     *
      * @param  string $indexName
      *
      * @return string
