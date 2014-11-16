@@ -3,7 +3,7 @@
 namespace Aramis\Bundle\ElasticsearchBundle\Index;
 
 use Aramis\Bundle\ElasticsearchBundle\Index\Index;
-use Aramis\Bundle\ElasticsearchBundle\Manager\DataManagerInterface;
+use Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderInterface;
 use Aramis\Bundle\ElasticsearchBundle\Exception\InvalidException;
 
 use Symfony\Component\Yaml\Parser;
@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @author i-team <iteam@aramisauto.com>
  *
- * Index manager
+ * Index builder
  */
 class IndexBuilder extends Index
 {
@@ -24,22 +24,22 @@ class IndexBuilder extends Index
     /**
      * @var array
      */
-    protected $_dataManagers = array();
+    protected $_dataProviders = array();
 
     /**
      * @param  ContainerInterface $container
      * @param  array              $config
-     * @param  array              $dataManagers
+     * @param  array              $dataProviders
      */
-    public function __construct(ContainerInterface $container, array $config = array(), $dataManagers = array())
+    public function __construct(ContainerInterface $container, array $config = array(), $dataProviders = array())
     {
         parent::__construct($config);
 
         $this->_container = $container;
 
-        // Get DataManagers
-        foreach ($dataManagers as $oneDataManager) {
-            $this->addDataManager($container->get($oneDataManager));
+        // Get DataProviders
+        foreach ($dataProviders as $oneDataProvider) {
+            $this->addDataProvider($container->get($oneDataProvider));
         }
     }
 
@@ -73,7 +73,7 @@ class IndexBuilder extends Index
      */
     public function createIndex($indexName, $byAlias = false, $replaceIfExists = false, $indexBuildName = null)
     {
-        $theDataManager = $this->selectDataManager($indexName);
+        $theDataProvider = $this->selectDataProvider($indexName);
 
         // Build a name for Index with alias
         $indexBuildName = ($byAlias && !$indexBuildName) ? self::createUniqName($indexName) : $indexBuildName;
@@ -85,11 +85,11 @@ class IndexBuilder extends Index
         } else {
             $elasticaIndex = $this->_elasticaClient->getIndex($indexBuildName);
 
-            if (method_exists($theDataManager, 'getAnalysis')) {
-                $elasticaIndex->create($theDataManager->getAnalysis(), true); // true: deletes index first if already exists
+            if (method_exists($theDataProvider, 'getAnalysis')) {
+                $elasticaIndex->create($theDataProvider->getAnalysis(), true); // true: deletes index first if already exists
             }
 
-            $this->defineMapping($elasticaIndex, $theDataManager);
+            $this->defineMapping($elasticaIndex, $theDataProvider);
         }
         if ($byAlias && $replaceIfExists) {
             $this->changeAliasAndClean($indexBuildName, $indexName);
@@ -106,7 +106,7 @@ class IndexBuilder extends Index
      */
     public function getDocumentById($indexName, $id)
     {
-        $theDataManager = $this->selectDataManager($indexName);
+        $theDataProvider = $this->selectDataProvider($indexName);
         if ($this->_elasticaStatus->indexExists($indexName)) {
             $elasticaIndex = $this->_elasticaClient->getIndex($indexName);
         } else {
@@ -118,7 +118,7 @@ class IndexBuilder extends Index
             }
         }
 
-        $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
+        $elasticaType = $elasticaIndex->getType($theDataProvider->getTypeName());
 
         return $elasticaType->getDocument($id)->getData();
     }
@@ -152,7 +152,7 @@ class IndexBuilder extends Index
      */
     public function requestDocuments($indexName, $action = 'post', $byQueue = false, $ids = null, $indexBuildName = null)
     {
-        $theDataManager = $this->selectDataManager($indexName);
+        $theDataProvider = $this->selectDataProvider($indexName);
 
         // Get Index
         $indexesByAlias = $this->_elasticaStatus->getIndicesWithAlias($indexName);
@@ -162,19 +162,19 @@ class IndexBuilder extends Index
             $elasticaIndex = $this->_elasticaClient->getIndex($indexBuildName ? $indexBuildName : $indexName);
         }
 
-        $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
+        $elasticaType = $elasticaIndex->getType($theDataProvider->getTypeName());
         $elasticaDocuments = $this->getElasticaDocuments($indexName, $ids);
         $opType = ('delete' == strtolower($action)) ? strtolower($action) : null;
 
         if ($byQueue) { // Using RabbitMQ
-            if (!$theDataManager->getRabbitMqProducerName()) {
-                throw new InvalidException('There is no RabbitMQ producer in your DataManager.');
+            if (!$theDataProvider->getRabbitMqProducerName()) {
+                throw new InvalidException('There is no RabbitMQ producer name in your DataProvider.');
             }
 
             $elasticaBulk = new \Elastica\Bulk($this->_elasticaClient);
             $elasticaBulk->addDocuments($elasticaDocuments, $opType);
 
-            $rabbitMQServiceName = sprintf('old_sound_rabbit_mq.%s', $theDataManager->getRabbitMqProducerName());
+            $rabbitMQServiceName = sprintf('old_sound_rabbit_mq.%s', $theDataProvider->getRabbitMqProducerName());
             $rabbitMQService = $this->_container->get($rabbitMQServiceName);
             $rabbitMQService->publish($elasticaBulk->toString());
         } else { // Send documents to Elasticesearch
@@ -242,13 +242,13 @@ class IndexBuilder extends Index
     }
 
     /**
-     * Adds DataManager
+     * Adds DataProvider
      *
-     * @param  DataManagerInterface $dataManager
+     * @param  DataProviderInterface $dataProvider
      */
-    protected function addDataManager(DataManagerInterface $dataManager)
+    protected function addDataProvider(DataProviderInterface $dataProvider)
     {
-        $this->_dataManagers[] = $dataManager;
+        $this->_dataProviders[] = $dataProvider;
     }
 
     /**
@@ -260,7 +260,7 @@ class IndexBuilder extends Index
      */
     protected function changeAliasAndClean($indexBuildName, $indexName, $rollBackMaxLevel = 0)
     {
-        $theDataManager = $this->selectDataManager($indexName);
+        $theDataProvider = $this->selectDataProvider($indexName);
 
         // Get Index
         $elasticaIndex = $this->_elasticaClient->getIndex($indexBuildName);
@@ -269,8 +269,6 @@ class IndexBuilder extends Index
         if ($this->_elasticaStatus->indexExists($indexName)) {
             $this->_elasticaClient->getIndex($indexName)->delete();
         }
-        // Get old Indexes by alias
-        // $lastIndexes = $this->_elasticaStatus->getIndicesWithAlias($indexName);
 
         $keepedIndexesNames = array();
         $oldIndexesNames    = array();
@@ -293,8 +291,8 @@ class IndexBuilder extends Index
             }
         }
         rsort($oldIndexesNames);
-        if (method_exists($theDataManager, 'getRollBackMaxLevel') && !$rollBackMaxLevel) {
-            $rollBackMaxLevel = $theDataManager->getRollBackMaxLevel();
+        if (method_exists($theDataProvider, 'getRollBackMaxLevel') && !$rollBackMaxLevel) {
+            $rollBackMaxLevel = $theDataProvider->getRollBackMaxLevel();
         }
         foreach ($oldIndexesNames as $level => $oneOldIndexName) {
             if ($level >= $rollBackMaxLevel) {
@@ -317,23 +315,23 @@ class IndexBuilder extends Index
     /**
      * Defines Mapping
      *
-     * @param  \Elastica\Index      $elasticaIndex
-     * @param  DataManagerInterface $theDataManager
+     * @param  \Elastica\Index       $elasticaIndex
+     * @param  DataProviderInterface $theDataProvider
      */
-    protected function defineMapping(\Elastica\Index $elasticaIndex, DataManagerInterface $theDataManager)
+    protected function defineMapping(\Elastica\Index $elasticaIndex, DataProviderInterface $theDataProvider)
     {
-        if (method_exists($theDataManager, 'getMapping')) {
-            $elasticaType = $elasticaIndex->getType($theDataManager->getTypeName());
+        if (method_exists($theDataProvider, 'getMapping')) {
+            $elasticaType = $elasticaIndex->getType($theDataProvider->getTypeName());
 
             // Define mapping
             $mapping = new \Elastica\Type\Mapping();
             $mapping->setType($elasticaType);
-            if (method_exists($theDataManager, 'getMappingParams')) {
-                foreach ($theDataManager->getMappingParams() as $oneParamIndex => $oneParamValue) {
+            if (method_exists($theDataProvider, 'getMappingParams')) {
+                foreach ($theDataProvider->getMappingParams() as $oneParamIndex => $oneParamValue) {
                     $mapping->setParam($oneParamIndex, $oneParamValue);
                 }
             }
-            $mapping->setProperties($theDataManager->getMapping());
+            $mapping->setProperties($theDataProvider->getMapping());
             $mapping->send();
         }
     }
@@ -348,14 +346,14 @@ class IndexBuilder extends Index
      */
     protected function getElasticaDocuments($indexName, $ids = null)
     {
-        $theDataManager = $this->selectDataManager($indexName);
+        $theDataProvider = $this->selectDataProvider($indexName);
 
         // Get Data
         $documents = array();
         if (null === $ids) {
-            $documents = $theDataManager->getDocuments();
+            $documents = $theDataProvider->getDocuments();
         } elseif (is_array($ids)) {
-            $documents = $theDataManager->getDocumentsByIds($oneId);
+            $documents = $theDataProvider->getDocumentsByIds($oneId);
         } else {
             throw new InvalidException('Parameter {$ids} must be an array or null.');
         }
@@ -367,7 +365,7 @@ class IndexBuilder extends Index
                 $oneDataLine['id'],
                 $oneDataLine
             );
-            $oneDocument->setType($theDataManager->getTypeName());
+            $oneDocument->setType($theDataProvider->getTypeName());
             $oneDocument->setIndex($indexName);
             $elasticaDocuments[] = $oneDocument;
         }
@@ -376,21 +374,21 @@ class IndexBuilder extends Index
     }
 
     /**
-     * Selects a DataManager
+     * Selects a DataProvider
      *
      * @param   string $indexName
      *
-     * @return  DataManagerInterface
+     * @return  DataProviderInterface
      */
-    protected function selectDataManager($indexName)
+    protected function selectDataProvider($indexName)
     {
-        foreach ($this->_dataManagers as $oneDataManager) {
-            if ($oneDataManager->getIndexName() == $indexName) {
+        foreach ($this->_dataProviders as $oneDataProvider) {
+            if ($oneDataProvider->getIndexName() == $indexName) {
 
-                return $oneDataManager;
+                return $oneDataProvider;
             }
         }
 
-        throw new InvalidException('DataManager does not exists.');
+        throw new InvalidException('DataProvider does not exists.');
     }
 }

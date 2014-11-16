@@ -2,7 +2,7 @@
 
 namespace Aramis\Bundle\ElasticsearchBundle\Index;
 
-use Aramis\Bundle\ElasticsearchBundle\Manager\DataManagerInterface;
+use Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderInterface;
 use Aramis\Bundle\ElasticsearchBundle\Exception\InvalidException;
 
 use Symfony\Component\Yaml\Parser;

@@ -28,7 +28,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('port')->end()
                     ->end()
                 ->end()
-                ->arrayNode('data_managers')
+                ->arrayNode('data_providers')
                     ->prototype('scalar')->end()
                         ->children()
                 ->end()

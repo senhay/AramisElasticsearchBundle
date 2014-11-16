@@ -24,7 +24,7 @@ class AramisElasticsearchExtension extends Extension
 
         $container->setParameter('aramis_elasticsearch.elasticsearch.host', $config['elasticsearch']['host']);
         $container->setParameter('aramis_elasticsearch.elasticsearch.port', $config['elasticsearch']['port']);
-        $container->setParameter('aramis_elasticsearch.data_managers', $config['data_managers']);
+        $container->setParameter('aramis_elasticsearch.data_providers', $config['data_providers']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
