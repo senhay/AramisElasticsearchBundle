@@ -17,7 +17,7 @@
         "symfony/console":          "~2.1",
         "symfony/property-access":  "~2.2",
         "jms/serializer-bundle":    "@stable",
-        "nategood/httpful":         "*",
+        "nategood/httpful":         "0.2.17",
         "ruflin/elastica":          ">=0.90.10.0, <1.4-dev",
         "oldsound/rabbitmq-bundle": "1.5.0"
     },
@@ -36,7 +36,7 @@
     "repositories": [
         {
             "type": "git",
-            "url": "git@github.com:senhay/AramisElasticsearchBundle.git"
+            "url": "git@github.com:ARAMISAUTO/AramisElasticsearchBundle.git"
         }
     ]
 }
