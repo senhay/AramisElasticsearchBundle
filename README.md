@@ -10,9 +10,15 @@ The AramisElasticsearchBundle allows you to manage your [Elasticsearch](http://w
  - Rollback
  - Using a command line tool to manage indexes
 
+## Documentation:
+
+documentation: [documentation](https://github.com/ARAMISAUTO/AramisElasticsearchBundle/blob/master/Resources/doc/index.md)
+
 ## Installation:
 
 All the installation instructions are located in the documentation: [documentation](https://github.com/ARAMISAUTO/AramisElasticsearchBundle/blob/master/Resources/doc/install.md)
 
+## Usage:
 
+All the usage instructions are located in the documentation: [documentation](https://github.com/ARAMISAUTO/AramisElasticsearchBundle/blob/master/Resources/doc/usage.md)
 
