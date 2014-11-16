@@ -12,13 +12,8 @@ The AramisElasticsearchBundle allows you to manage your [Elasticsearch](http://w
 
 ## Documentation:
 
-documentation: [documentation](https://github.com/ARAMISAUTO/AramisElasticsearchBundle/blob/master/Resources/doc/index.md)
+[Installation](https://github.com/ARAMISAUTO/AramisElasticsearchBundle/blob/master/Resources/doc/install.md)
 
-## Installation:
 
-All the installation instructions are located in the documentation: [documentation](https://github.com/ARAMISAUTO/AramisElasticsearchBundle/blob/master/Resources/doc/install.md)
-
-## Usage:
-
-All the usage instructions are located in the documentation: [documentation](https://github.com/ARAMISAUTO/AramisElasticsearchBundle/blob/master/Resources/doc/usage.md)
+[Usage](https://github.com/ARAMISAUTO/AramisElasticsearchBundle/blob/master/Resources/doc/usage.md)
 
