@@ -1,6 +1,6 @@
 {
     "name": "aramis/elasticsearch-bundle",
-    "description": "Aramis ElasticSearch Bundle",
+    "description": "Aramis Elasticsearch Bundle",
     "keywords": [ "aramis", "elasticsearch", "bundle", "elastica", "indexer" ],
     "type": "symfony-bundle",
     "license": "proprietary",
