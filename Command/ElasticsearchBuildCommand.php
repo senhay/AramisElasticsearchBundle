@@ -22,8 +22,8 @@ class ElasticsearchBuildCommand extends ContainerAwareCommand
         $this
             ->setName('aramis:elasticsearch:build')
             ->setDescription('Elasticsearch Build Tool')
-            ->addArgument('index', InputArgument::REQUIRED, 'Index')
             ->addArgument('action', InputArgument::REQUIRED, 'Action (build|create|empty|refresh|rollback|document)')
+            ->addArgument('index', InputArgument::REQUIRED, 'Index')
             ->addOption('alias', null, InputOption::VALUE_REQUIRED, 'Use alias (concerned actions: build,create)', true)
             ->addOption('queue', null, InputOption::VALUE_REQUIRED, 'Use RabbitMQ River (concerned actions: build,empty,refresh)', false)
             ->addOption('rollback_level', null, InputOption::VALUE_REQUIRED, 'Depth of rollback (concerned actions: build), alias must be TRUE', 1)

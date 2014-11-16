@@ -44,12 +44,12 @@ class IndexBuilder extends Index
     }
 
     /**
-     * Builds Index
+     * Creates and populates Index
      *
-     * @param  string  $indexName
-     * @param  boolean $byAlias
-     * @param  boolean $byQueue
-     * @param  integer $rollBackMaxLevel
+     * @param  string  $indexName         Index's name
+     * @param  boolean $byAlias           Use alias
+     * @param  boolean $byQueue           Use RabbitMQ
+     * @param  integer $rollBackMaxLevel  Depth of rollback
      */
     public function buildIndex($indexName, $byAlias = false, $byQueue = false, $rollBackMaxLevel = 0)
     {
@@ -66,10 +66,10 @@ class IndexBuilder extends Index
     /**
      * Creates Index
      *
-     * @param  string      $indexName
-     * @param  boolean     $byAlias
-     * @param  boolean     $replaceIfExists
-     * @param  string|null $indexBuildName
+     * @param  string      $indexName        Index's name (alias name)
+     * @param  boolean     $byAlias          Use alias
+     * @param  boolean     $replaceIfExists  Replace Index if exists
+     * @param  string|null $indexBuildName   Index's unique name (for alias mode, null recommended)
      */
     public function createIndex($indexName, $byAlias = false, $replaceIfExists = false, $indexBuildName = null)
     {
@@ -99,8 +99,8 @@ class IndexBuilder extends Index
     /**
      * Gets document by id
      *
-     * @param  string $indexName
-     * @param  string $id
+     * @param  string $indexName  Index's name
+     * @param  string $id         Id
      *
      * @return array
      */
@@ -126,8 +126,8 @@ class IndexBuilder extends Index
     /**
      * Gets documents by ids
      *
-     * @param  string $indexName
-     * @param  array  $ids
+     * @param  string $indexName  Index's name
+     * @param  array  $ids        Id's list
      *
      * @return array
      */
@@ -142,13 +142,13 @@ class IndexBuilder extends Index
     }
 
     /**
-     * Post Documents
+     * Request documents
      *
-     * @param  string      $indexName
-     * @param  string|null $action (post|delete|null)
-     * @param  boolean     $byQueue
-     * @param  array|null  $ids
-     * @param  string|null $indexBuildName
+     * @param  string      $indexName       Index's name
+     * @param  string|null $action          Action (post|delete|null)
+     * @param  boolean     $byQueue         Use RabbitMQ
+     * @param  array|null  $ids             Id's list
+     * @param  string|null $indexBuildName  Index's unique name (for alias mode, null recommended)
      */
     public function requestDocuments($indexName, $action = 'post', $byQueue = false, $ids = null, $indexBuildName = null)
     {
@@ -188,12 +188,12 @@ class IndexBuilder extends Index
     }
 
     /**
-     * Refresh Documents
+     * Refresh documents
      *
-     * @param  string      $indexName
-     * @param  boolean     $byQueue
-     * @param  array|null  $ids
-     * @param  string|null $indexBuildName
+     * @param  string      $indexName       Index's name
+     * @param  boolean     $byQueue         Use RabbitMQ
+     * @param  array|null  $ids             Id's list
+     * @param  string|null $indexBuildName  Index's unique name (for alias mode, null recommended)
      */
     public function refreshDocuments($indexName, $byQueue = false, $ids = null, $indexBuildName = null)
     {
@@ -204,8 +204,8 @@ class IndexBuilder extends Index
     /**
      * Rollback
      *
-     * @param  string  $indexName
-     * @param  integer $level
+     * @param  string  $indexName  Index's name
+     * @param  integer $level      Index's version (1: last version, 2: second last version, ...)
      */
     public function rollback($indexName, $level = 1)
     {
