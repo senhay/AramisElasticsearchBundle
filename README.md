@@ -5,10 +5,10 @@ The AramisElasticsearchBundle allows you to manage your [Elasticsearch](http://w
 
  Among these uses:
 
- - Build of Elasticsearch index (support the use of alias)
- - Supply index (support the use of RabbitMQ River)
+ - Build index (support the use of alias)
+ - Populate index (support the use of RabbitMQ River)
  - Rollback multi-level
- - Using a command line tool to manage indexes
+ - Command line tool to manage indexes
 
 ## Documentation:
 
