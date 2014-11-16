@@ -164,7 +164,7 @@ $builder->getDocumentsByIds('twitter', array(1,2));
 $builder->rollback('twitter');
 ```
 
-### A) Using command line
+### B) Using command line
 
 #### Command's list:
 ```
