@@ -15,7 +15,7 @@ $builder = $this->get('aramis_elasticsearch_builder');
      *
      * @param  string  $indexName         Index name
      * @param  boolean $byAlias           Use alias
-     * @param  boolean $byQueue           Use RabbitMQ
+     * @param  boolean $byQueue           Use RabbitMQ River
      * @param  integer $rollBackMaxLevel  Depth of rollback
      */
     public function buildIndex($indexName, $byAlias = false, $byQueue = false, $rollBackMaxLevel = 0);
@@ -74,7 +74,7 @@ $builder->deleteIndex('twitter');
      *
      * @param  string      $indexName       Index name
      * @param  string|null $action          Action (post|delete|null)
-     * @param  boolean     $byQueue         Use RabbitMQ
+     * @param  boolean     $byQueue         Use RabbitMQ River
      * @param  array|null  $ids             Id's list
      * @param  string|null $indexBuildName  Index's unique name (for alias mode, null recommended)
      */
@@ -94,7 +94,7 @@ $builder->requestDocuments('twitter', 'delete', false);
      * Refresh documents
      *
      * @param  string      $indexName       Index name
-     * @param  boolean     $byQueue         Use RabbitMQ
+     * @param  boolean     $byQueue         Use RabbitMQ River
      * @param  array|null  $ids             Id's list
      * @param  string|null $indexBuildName  Index's unique name (for alias mode, null recommended)
      */

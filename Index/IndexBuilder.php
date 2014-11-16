@@ -48,7 +48,7 @@ class IndexBuilder extends Index
      *
      * @param  string  $indexName         Index's name
      * @param  boolean $byAlias           Use alias
-     * @param  boolean $byQueue           Use RabbitMQ
+     * @param  boolean $byQueue           Use RabbitMQ River
      * @param  integer $rollBackMaxLevel  Depth of rollback
      */
     public function buildIndex($indexName, $byAlias = false, $byQueue = false, $rollBackMaxLevel = 0)
@@ -146,7 +146,7 @@ class IndexBuilder extends Index
      *
      * @param  string      $indexName       Index's name
      * @param  string|null $action          Action (post|delete|null)
-     * @param  boolean     $byQueue         Use RabbitMQ
+     * @param  boolean     $byQueue         Use RabbitMQ River
      * @param  array|null  $ids             Id's list
      * @param  string|null $indexBuildName  Index's unique name (for alias mode, null recommended)
      */
@@ -166,7 +166,7 @@ class IndexBuilder extends Index
         $elasticaDocuments = $this->getElasticaDocuments($indexName, $ids);
         $opType = ('delete' == strtolower($action)) ? strtolower($action) : null;
 
-        if ($byQueue) { // Using RabbitMQ
+        if ($byQueue) { // Using RabbitMQ River
             if (!$theDataProvider->getRabbitMqProducerName()) {
                 throw new InvalidException('There is no RabbitMQ producer name in your DataProvider.');
             }
@@ -191,7 +191,7 @@ class IndexBuilder extends Index
      * Refresh documents
      *
      * @param  string      $indexName       Index's name
-     * @param  boolean     $byQueue         Use RabbitMQ
+     * @param  boolean     $byQueue         Use RabbitMQ River
      * @param  array|null  $ids             Id's list
      * @param  string|null $indexBuildName  Index's unique name (for alias mode, null recommended)
      */
