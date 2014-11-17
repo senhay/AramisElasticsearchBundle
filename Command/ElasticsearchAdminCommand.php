@@ -104,7 +104,7 @@ class ElasticsearchAdminCommand extends ContainerAwareCommand
                     $choices = array('0' => 'add', '1' => 'remove', '2' => '<< cancel >>');
                     $choice = $dialog->select(
                         $output,
-                        "\n<question>You want to add or remove an alias ?</question>",
+                        "\n<question>Do you want to add or remove an alias ?</question>",
                         $choices,
                         count($choices) - 1
                     );
