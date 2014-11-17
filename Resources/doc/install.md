@@ -30,7 +30,11 @@ public function registerBundles()
 
 You need to create a service that will feed index with data.
 
+<<<<<<< HEAD
 The service class must extends AbstractDataProvider class: `Aramis\Bundle\ElasticsearchBundle\Provider\AbstractDataProvider`.
+=======
+The service class must implements DataProviderInterface: `Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderInterface`.
+>>>>>>> d1567a51c05d01e3510cf49abdaea463c435ad3b
 
 There is an example of DataProvider class: `Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderExample`.
 
