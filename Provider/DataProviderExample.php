@@ -67,10 +67,10 @@ class DataProviderExample implements DataProviderInterface
         '2' => array(
             'id'      => 2,
             'user'    => array(
-                'name'      => 'mewantpizzakkk',
+                'name'      => 'mewantpizza',
                 'fullName'  => 'Pizza Monster'
             ),
-            'msg'     => 'Me wish there were expression for pizza like there is for apples. "A cookie a day make the doctor diagnose you with diabetes" not catchy.',
+            'msg'     => 'Me wish there were expression for pizza.',
             'tstamp'  => '1238081389',
             'location'=> '41.12,-71.34',
             '_boost'  => 1.0
@@ -115,7 +115,7 @@ class DataProviderExample implements DataProviderInterface
     private $_rollBackMaxLevel = 0;
 
     /**
-     * Sets analysis for Index.
+     * Sets analysis for Index. (optinal method)
      *
      * @param array $analysis
      */
@@ -125,7 +125,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Sets documents.
+     * Sets documents. (optinal method)
      *
      * @param array $documents
      */
@@ -135,7 +135,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Sets name for Index.
+     * Sets name for Index. (optinal method)
      *
      * @param string $name
      */
@@ -145,7 +145,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Sets mapping for Index.
+     * Sets mapping for Index. (optinal method)
      *
      * @return array $mapping
      */
@@ -155,7 +155,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Sets mapping parameters for Index.
+     * Sets mapping parameters for Index. (optinal method)
      *
      * @return array $mappingParams
      */
@@ -165,7 +165,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Sets type name for Index.
+     * Sets type name for Index. (optinal method)
      *
      * @param string $name
      */
@@ -175,7 +175,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Sets RabbitMQ producer name.
+     * Sets RabbitMQ producer name. (optinal method)
      *
      * @param string $name
      */
@@ -185,7 +185,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets analysis of Index. | Optional
+     * Gets analysis of Index. (optinal method)
      *
      * @return array
      */
@@ -195,7 +195,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets documents.
+     * Gets documents. (required method)
      *
      * @return array
      */
@@ -205,7 +205,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets name of Index.
+     * Gets name of Index. (required method)
      *
      * @return string
      */
@@ -215,7 +215,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets mapping of Index. | Optional
+     * Gets mapping of Index. (optinal method)
      *
      * @return array
      */
@@ -225,7 +225,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets mapping parameters of Index. | Optional
+     * Gets mapping parameters of Index. (optinal method)
      *
      * @return array
      */
@@ -235,7 +235,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets documents by ids.
+     * Gets documents by ids. (required method)
      *
      * @param array $ids
      *
@@ -252,7 +252,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets type name of Index.
+     * Gets type name of Index. (required method)
      *
      * @return string
      */
@@ -262,7 +262,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets RabbitMQ producer name.  | Optinal
+     * Gets RabbitMQ producer name. (optinal method)
      *
      * @return string
      */
@@ -272,7 +272,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets Rollback Max Level.  | Optinal
+     * Gets Rollback Max Level. (optinal method)
      *
      * @return string
      */
