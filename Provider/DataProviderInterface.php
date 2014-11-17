@@ -5,10 +5,17 @@ namespace Aramis\Bundle\ElasticsearchBundle\Provider;
 /**
  * @author i-team <iteam@aramisauto.com>
  *
- * Interface of DataProvider service
+ * DataProvider interface
  */
 interface DataProviderInterface
 {
+    /**
+     * Gets analysis of Index.
+     *
+     * @return array
+     */
+    public function getAnalysis();
+
     /**
      * Gets data of index.
      *
@@ -31,6 +38,34 @@ interface DataProviderInterface
      * @return string
      */
     public function getIndexName();
+
+    /**
+     * Gets mapping of Index.
+     *
+     * @return array
+     */
+    public function getMapping();
+
+    /**
+     * Gets mapping parameters of Index.
+     *
+     * @return array
+     */
+    public function getMappingParams();
+
+    /**
+     * Gets RabbitMQ producer name.
+     *
+     * @return string
+     */
+    public function getRabbitMqProducerName();
+
+    /**
+     * Gets Rollback Max Level.
+     *
+     * @return string
+     */
+    public function getRollBackMaxLevel();
 
     /**
      * Gets type name of index.

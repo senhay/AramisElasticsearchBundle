@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use Aramis\Bundle\ElasticsearchBundle\Index\Index;
+use Aramis\Bundle\ElasticsearchBundle\Exception\InvalidException;
 
 use Httpful\Request;
 
@@ -247,7 +248,7 @@ class ElasticsearchAdminCommand extends ContainerAwareCommand
         if (is_resource($connection)) {
             fclose($connection);
         } else {
-            $output->writeln("\n<error>Elasticsearch server is not responding.</error>");
+            throw new InvalidException("\nElasticsearch server is not responding.");
         }
     }
 }

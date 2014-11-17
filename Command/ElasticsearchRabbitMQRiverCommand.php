@@ -120,7 +120,7 @@ class ElasticsearchRabbitMQRiverCommand extends ContainerAwareCommand
         if (is_resource($connection)) {
             fclose($connection);
         } else {
-            $output->writeln('<error>Elasticsearch server is not responding.</error>');
+            throw new InvalidException("\nElasticsearch server is not responding.");
         }
 
         if ('delete' != $input->getArgument('action')) {
@@ -129,7 +129,7 @@ class ElasticsearchRabbitMQRiverCommand extends ContainerAwareCommand
             if (is_resource($connection)) {
                 fclose($connection);
             } else {
-                $output->writeln('<error>RabbitMQ server is not responding.</error>');
+                throw new InvalidException("\nRabbitMQ server is not responding.");
             }
         }
     }

@@ -85,8 +85,8 @@ class IndexBuilder extends Index
         } else {
             $elasticaIndex = $this->_elasticaClient->getIndex($indexBuildName);
 
-            if (method_exists($theDataProvider, 'getAnalysis')) {
-                $elasticaIndex->create($theDataProvider->getAnalysis(), true); // true: deletes index first if already exists
+            if (!empty($analysis = $theDataProvider->getAnalysis())) {
+                $elasticaIndex->create($analysis, true); // true: deletes index first if already exists
             }
 
             $this->defineMapping($elasticaIndex, $theDataProvider);
@@ -291,8 +291,8 @@ class IndexBuilder extends Index
             }
         }
         rsort($oldIndexesNames);
-        if (method_exists($theDataProvider, 'getRollBackMaxLevel') && !$rollBackMaxLevel) {
-            $rollBackMaxLevel = $theDataProvider->getRollBackMaxLevel();
+        if (!empty($provRollbackMaxLevel = $theDataProvider->getRollBackMaxLevel()) && !$rollBackMaxLevel) {
+            $rollBackMaxLevel = $provRollbackMaxLevel;
         }
         foreach ($oldIndexesNames as $level => $oneOldIndexName) {
             if ($level >= $rollBackMaxLevel) {
@@ -321,18 +321,18 @@ class IndexBuilder extends Index
      */
     protected function defineMapping(\Elastica\Index $elasticaIndex, DataProviderInterface $theDataProvider)
     {
-        if (method_exists($theDataProvider, 'getMapping')) {
+        if (!empty($proMapping = $theDataProvider->getMapping())) {
             $elasticaType = $elasticaIndex->getType($theDataProvider->getTypeName());
 
             // Define mapping
             $mapping = new \Elastica\Type\Mapping();
             $mapping->setType($elasticaType);
-            if (method_exists($theDataProvider, 'getMappingParams')) {
-                foreach ($theDataProvider->getMappingParams() as $oneParamIndex => $oneParamValue) {
+            if (!empty($mappingParams = $theDataProvider->getMappingParams())) {
+                foreach ($mappingParams as $oneParamIndex => $oneParamValue) {
                     $mapping->setParam($oneParamIndex, $oneParamValue);
                 }
             }
-            $mapping->setProperties($theDataProvider->getMapping());
+            $mapping->setProperties($proMapping);
             $mapping->send();
         }
     }

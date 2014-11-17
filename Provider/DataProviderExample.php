@@ -3,13 +3,14 @@
 namespace Aramis\Bundle\ElasticsearchBundle\Provider;
 
 use Aramis\Bundle\ElasticsearchBundle\Provider\DataProviderInterface;
+use Aramis\Bundle\ElasticsearchBundle\Provider\AbstractDataProvider;
 
 /**
  * @author i-team <iteam@aramisauto.com>
  *
- * Interface of DataProvider service
+ * DataProvider example
  */
-class DataProviderExample implements DataProviderInterface
+class DataProviderExample extends AbstractDataProvider
 {
     /**
      * @var string
@@ -112,7 +113,7 @@ class DataProviderExample implements DataProviderInterface
     /**
      * @var integer
      */
-    private $_rollBackMaxLevel = 0;
+    private $_rollBackMaxLevel = 1;
 
     /**
      * Sets analysis for Index. (optinal method)
@@ -185,7 +186,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets analysis of Index. (optinal method)
+     * Gets analysis of Index.
      *
      * @return array
      */
@@ -195,7 +196,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets documents. (required method)
+     * Gets documents.
      *
      * @return array
      */
@@ -205,7 +206,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets name of Index. (required method)
+     * Gets name of Index.
      *
      * @return string
      */
@@ -215,7 +216,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets mapping of Index. (optinal method)
+     * Gets mapping of Index.
      *
      * @return array
      */
@@ -225,7 +226,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets mapping parameters of Index. (optinal method)
+     * Gets mapping parameters of Index.
      *
      * @return array
      */
@@ -235,7 +236,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets documents by ids. (required method)
+     * Gets documents by ids.
      *
      * @param array $ids
      *
@@ -252,7 +253,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets type name of Index. (required method)
+     * Gets type name of Index.
      *
      * @return string
      */
@@ -262,7 +263,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets RabbitMQ producer name. (optinal method)
+     * Gets RabbitMQ producer name.
      *
      * @return string
      */
@@ -272,7 +273,7 @@ class DataProviderExample implements DataProviderInterface
     }
 
     /**
-     * Gets Rollback Max Level. (optinal method)
+     * Gets Rollback Max Level.
      *
      * @return string
      */
